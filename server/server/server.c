@@ -295,7 +295,7 @@ int ValidateReceivingString(TransferResult_t recvRes)
 	}
 	return 1;
 }
-TransferResult_t HandleClientCommand(char* str, SOCKET sd,BOOL* Done)
+int HandleClientCommand(char* str, SOCKET *sd,BOOL* Done)
 {
 	char* pch;
 	char* command;
@@ -306,12 +306,36 @@ TransferResult_t HandleClientCommand(char* str, SOCKET sd,BOOL* Done)
 	arg1 = strtok (NULL," ");
 	arg2 = strtok (NULL," ");
 	printf("%s %s %s\n",command,arg1,arg2);
-	
-	if (STRINGS_ARE_EQUAL(command,"quit"))
+
+	if (STRINGS_ARE_EQUAL(command,"/active_users"))
+	{
+		if (SendActiveUsers(sd, Users, MutexHandle)){
+			return 1;
+		}
+	}
+
+	else if (STRINGS_ARE_EQUAL(command,"/private_message"))
+	{
+		if (SendPrivateMessage(arg1, arg2 , sd, Users)){
+			return 1;
+		}
+	}
+
+	else if (STRINGS_ARE_EQUAL(command,"/broadcast"))
+	{
+		// send file to everybody
+	}
+
+	else if (STRINGS_ARE_EQUAL(command,"/p2p"))
+	{
+		// open p2p connection between 2 users
+	}
+
+	else if (STRINGS_ARE_EQUAL(command,"quit"))
 	{
 		*Done = TRUE;
 	}
-	return TRNS_SUCCEEDED;
+	return 0;
 }
 
 //Service thread is the thread that opens for each successful client connection and "talks" to the client.
@@ -365,14 +389,10 @@ static DWORD ServiceThread( SOCKET *t_socket )
 		}
 		printf("%s,Got string : %s\n",clientNameStr,sessionStr);
 		
-		sendRes = HandleClientCommand( sessionStr, *t_socket ,&Done);
-		if ( sendRes == TRNS_FAILED ) 
-		{
-			printf("%s,Service socket error while writing, closing thread.\n",clientNameStr);
-			closesocket( *t_socket );
+		if (HandleClientCommand( sessionStr, t_socket ,&Done)){
 			return 1;
 		}
-
+	
 		free( sessionStr );		
 	}
 	
