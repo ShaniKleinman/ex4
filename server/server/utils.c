@@ -11,8 +11,6 @@
 #include "server.h"
 #include "SocketSendRecvTools.h"
 
-
-
 char* ConcatString(	char* source_a, char* source_b,char* source_c)
 {
 	int total_size = strlen(source_a)+strlen(source_b)+strlen(source_c);
@@ -27,30 +25,46 @@ char* ConcatString(	char* source_a, char* source_b,char* source_c)
 	return string;
 }
 
-BOOL CheckIfNameValid(List* users, char* name,SOCKET socket)
+BOOL RequestAccessFlow(List* users, char* name,SOCKET socket)
 {
 	int i;
 	Node* node = ReturnElementByName(users,name);
+	Node* currentNode;
+	BOOL statusRequest = FALSE;
+	char* message;
 	if (node == NULL)
 	{
-		AddElementAtEnd(users,name,socket);
-		return TRUE;
+		node = AddElementAtEnd(users,name,socket);
+		statusRequest= TRUE;
 	}
-	if (node->activeStatus == NOT_ACTIVE)
+	else if (node->activeStatus == NOT_ACTIVE)
 	{
 		node->activeStatus = ACTIVE;
 		node->socket = socket;
-		return TRUE;
+		statusRequest= TRUE;
 	}
-	return FALSE;
+	if (statusRequest == TRUE)
+	{
+		currentNode = users->firstNode;
+		while(currentNode != NULL)
+		{
+			if(currentNode->activeStatus== ACTIVE && !STRINGS_ARE_EQUAL(currentNode->name,node->name))
+			{
+				message = ConcatString("*** ",name," has joined the session ***");
+				SendString(message,currentNode->socket);
+			}
+			currentNode = currentNode->next;
+		}
+	}
+	return statusRequest;
 }
 
-
-DWORD LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex)
+ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex)
 {
 	DWORD WaitRes;
 	Node* userNode;
 	Node* currentNode;
+	TransferResult_t sendRes;
 	char* message;
 	__try 
 	{
@@ -68,7 +82,15 @@ DWORD LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex)
 					if(currentNode->activeStatus== ACTIVE)
 					{
 						message = ConcatString("*** ",clientName," has left the session ***");
-						SendString(message,currentNode->socket);
+						sendRes = SendString(message,currentNode->socket);
+						if ( sendRes == TRNS_FAILED ) 
+						{
+							printf( "Service socket error while writing, closing thread.\n" );
+							currentNode->activeStatus= NOT_ACTIVE;
+							closesocket( currentNode->socket );
+							currentNode->socket= NULL;
+
+						}
 					}
 					currentNode = currentNode->next;
 				}
@@ -87,13 +109,20 @@ DWORD LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex)
 		return ( ISP_SUCCESS );
 	}
 }
-DWORD EnterSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex)
+
+ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNameStr,char** systemMessage)
 {
 	DWORD WaitRes;
-	List* activeUsers;
+	Node* currentNode = users->firstNode;
 	Node* userNode;
-	Node* currentNode;
-	char* message;
+	char* activeUsersNameList;
+	BOOL firstActiveUser= FALSE;
+	TransferResult_t sendRes;
+	activeUsersNameList = (char*) malloc (MAX_USER_NAME_LENGTH*sizeof(*activeUsersNameList));
+	if (activeUsersNameList == NULL)
+	{
+		exit(1);
+	}
 	__try 
 	{
 		WaitRes = WaitForSingleObject( mutex, INFINITE );
@@ -101,89 +130,30 @@ DWORD EnterSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex)
 		{
 		case WAIT_OBJECT_0: 
 			{
-				printf("%d is holding mutex %d\n",socket,mutex);
-				userNode=ReturnElementByName(users, clientName);
-				currentNode = users->firstNode;
 				while(currentNode != NULL)
 				{
-					if(currentNode->activeStatus== ACTIVE && !STRINGS_ARE_EQUAL(currentNode->name,userNode->name))
+					if(currentNode->activeStatus== ACTIVE && ! firstActiveUser)
 					{
-						message = ConcatString("*** ",clientName," has joined the session ***");
-						SendString(message,currentNode->socket);
+						strcpy(activeUsersNameList,currentNode->name);
+						firstActiveUser=TRUE;
+					}
+					else if (currentNode->activeStatus== ACTIVE)
+					{
+						activeUsersNameList = ConcatString(activeUsersNameList,", ",currentNode->name);
 					}
 					currentNode = currentNode->next;
 				}
-			} 
-			break; 
-		case WAIT_ABANDONED: 
-			return ISP_MUTEX_ABANDONED; 
-		}
-	}
-	__finally 
-	{ 
-		if ( !ReleaseMutex(mutex)) {
-			return ( ISP_MUTEX_RELEASE_FAILED );
-		} 
-		printf("%d is releasing mutex %d\n",socket,mutex);
-		return ( ISP_SUCCESS );
-	}
-}
-
-int SendPrivateMessage(char* userDest, char* message, SOCKET *sd, List* users )
-{
-	int i;
-	char* string;
-	SOCKET socketDest;
-	Node* node = ReturnElementByName(users,userDest);
-	if (node == NULL || node->activeStatus == NOT_ACTIVE)
-	{
-		string =  ConcatString(	"No such user", " ", userDest);
-		if (SendString(string, *sd) == TRNS_FAILED)
-		{
-			printf( "Service socket error while writing, closing thread.\n" );
-			closesocket( *sd );
-			return 1;
-		}
-	}
-	else
-	{
-		socketDest = node->socket;
-		if (SendString(message, *sd) == TRNS_FAILED)
-		{
-			printf( "Service socket error while writing, closing thread.\n" );
-			closesocket( *sd );
-			return 1;
-		}
-	}
-	return 0;
-}
-
-int SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex)
-{
-	DWORD WaitRes;
-	Node* currentNode = users->firstNode->next;
-	char* activeUsersList;
-	activeUsersList = (char*) malloc (16*sizeof(*activeUsersList));
-	if (activeUsersList == NULL){
-		exit(1);
-	}
-	activeUsersList = users->firstNode->name;
-		__try 
-	{
-		WaitRes = WaitForSingleObject( mutex, INFINITE );
-		switch (WaitRes) 
-		{
-		case WAIT_OBJECT_0: 
-			{
-				while(currentNode != NULL)
+				*systemMessage = activeUsersNameList;
+				sendRes = SendString(activeUsersNameList,*sd);
+				if ( sendRes == TRNS_FAILED ) 
 				{
-					if(currentNode->activeStatus== ACTIVE )
-					{
-						activeUsersList = ConcatString(activeUsersList,", ",currentNode->name);
-					}
-					currentNode = currentNode->next;
-				} 
-				SendString(activeUsersList,*sd);
+					printf( "Service socket error while writing, closing thread.\n" );
+					userNode = ReturnElementByName(users,clientNameStr);
+					userNode->activeStatus = NOT_ACTIVE;
+					closesocket( userNode->socket );
+					userNode->socket=NULL;
+					return ISP_NO_SUCCESS;
+				}
 			}
 			break; 
 		case WAIT_ABANDONED: 
@@ -192,7 +162,122 @@ int SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex)
 	}
 	__finally 
 	{ 
-		if ( !ReleaseMutex(mutex)) {
+		if ( !ReleaseMutex(mutex)) 
+		{
+			return ( ISP_MUTEX_RELEASE_FAILED );
+		} 
+		
+		//printf("%d is releasing mutex %d\n",GetCurrentThreadId(),MutexHandleTop);
+		return ( ISP_SUCCESS );
+	}
+
+	return 0;
+}
+
+ErrorCode_t SendPrivateMessage(char* userDestName, char* userSourceName, char* message, HANDLE mutex, List* users,SOCKET *sourceSocket)
+{
+	DWORD WaitRes;
+	Node* userDestNode;
+	Node* userSourceNode;
+	TransferResult_t sendRes;
+	char* messageConcat;
+	__try 
+	{
+		WaitRes = WaitForSingleObject( mutex, INFINITE );
+		switch (WaitRes) 
+		{
+		case WAIT_OBJECT_0: 
+			{
+				userDestNode = ReturnElementByName(users,userDestName);
+				if (userDestNode != NULL && userDestNode->activeStatus == ACTIVE)
+				{
+					messageConcat = ConcatString(userSourceName,": ",message);
+					sendRes = SendString(messageConcat,userDestNode->socket);
+					if ( sendRes == TRNS_FAILED ) 
+					{
+						printf( "Service socket error while writing, closing thread.\n" );
+						userDestNode->activeStatus = NOT_ACTIVE;
+						closesocket( userDestNode->socket );
+						userDestNode->socket=NULL;
+						return ISP_NO_SUCCESS;
+					}
+				}
+				else
+				{
+					messageConcat = ConcatString("No such user ","",userDestName);
+					sendRes = SendString(messageConcat,*sourceSocket);
+					if ( sendRes == TRNS_FAILED ) 
+					{
+						printf( "Service socket error while writing, closing thread.\n" );
+						userSourceNode = ReturnElementByName(users,userSourceName);
+						userSourceNode->activeStatus= NOT_ACTIVE;
+						closesocket( userSourceNode->socket );
+						userSourceNode->socket= NULL;
+						return ISP_NO_SUCCESS;
+					}
+				}
+			}
+			break; 
+		case WAIT_ABANDONED: 
+			return ISP_MUTEX_ABANDONED; 
+		}
+	}
+	__finally 
+	{ 
+		if ( !ReleaseMutex(mutex)) 
+		{
+			return ( ISP_MUTEX_RELEASE_FAILED );
+		} 
+		//printf("%d is releasing mutex %d\n",GetCurrentThreadId(),MutexHandleTop);
+		return ( ISP_SUCCESS );
+	}
+
+	return 0;
+}
+
+ErrorCode_t SendPublicMessage(char* arg1,char* clientNameStr,HANDLE mutexHandle,List* users,SOCKET sourceSocket)
+{
+	DWORD WaitRes;
+	Node* sourceNode;
+	Node* currentNode;
+	TransferResult_t sendRes;
+	char* messageConcat;
+	__try 
+	{
+		WaitRes = WaitForSingleObject( mutexHandle, INFINITE );
+		switch (WaitRes) 
+		{
+		case WAIT_OBJECT_0: 
+			{
+				sourceNode = ReturnElementByName(users,clientNameStr);
+				currentNode = users->firstNode;
+				while(currentNode != NULL)
+				{
+					if(currentNode->activeStatus== ACTIVE && !STRINGS_ARE_EQUAL(currentNode->name,sourceNode->name))
+					{
+						messageConcat = ConcatString(clientNameStr,": ",arg1);
+						sendRes = SendString(messageConcat,currentNode->socket);
+						if ( sendRes == TRNS_FAILED ) 
+						{
+							printf( "Service socket error while writing, closing thread.\n" );
+							currentNode->activeStatus= NOT_ACTIVE;
+							closesocket( currentNode->socket );
+							currentNode->socket= NULL;
+							return ISP_NO_SUCCESS;
+						}
+					}
+					currentNode = currentNode->next;
+				}
+			}
+			break; 
+		case WAIT_ABANDONED: 
+			return ISP_MUTEX_ABANDONED; 
+		}
+	}
+	__finally 
+	{ 
+		if ( !ReleaseMutex(mutexHandle)) 
+		{
 			return ( ISP_MUTEX_RELEASE_FAILED );
 		} 
 		//printf("%d is releasing mutex %d\n",GetCurrentThreadId(),MutexHandleTop);

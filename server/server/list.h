@@ -28,7 +28,7 @@ Node* ReturnElementByIndex(List* list, int element_index, Node* previous_node);
 void DeleteList(List* list);
 
 //insert element I at end of list. Return 1 if succeed or 0 if List has bug. 
-void AddElementAtEnd(List* list, char* name,SOCKET socket);
+Node* AddElementAtEnd(List* list, char* name,SOCKET socket);
 
 //insert element I at start of list
 void AddElemntAtStart(List* list, char* name,SOCKET socket);

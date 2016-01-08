@@ -17,6 +17,7 @@ typedef enum { NO_ACCESS , ACCESS } AccessResult;
 
 typedef enum { 
     ISP_SUCCESS, 
+	ISP_NO_SUCCESS,
     ISP_FILE_OPEN_FAILED, 
     ISP_FILE_SEEK_FAILED,
     ISP_FILE_READING_FAILED,

@@ -258,7 +258,7 @@ DWORD HandleAccessRequest(char* AcceptedStr,AccessResult* accessResult,SOCKET so
 		{
 		case WAIT_OBJECT_0: 
 			{
-				if (CheckIfNameValid(Users,AcceptedStr,socket))
+				if (RequestAccessFlow(Users,AcceptedStr,socket))
 				{
 					*accessResult = ACCESS;
 				}
@@ -295,29 +295,60 @@ int ValidateReceivingString(TransferResult_t recvRes)
 	}
 	return 1;
 }
-int HandleClientCommand(char* str, SOCKET *sd,BOOL* Done)
+DWORD HandleClientCommand(char* str, SOCKET *sourceSocket,BOOL* Done,char* clientNameStr)
 {
 	char* pch;
 	char* command;
 	char* arg1;
 	char* arg2;
-
+	ErrorCode_t errorCode;
+	char* systemMessage;
 	command = strtok (str," ");
-	arg1 = strtok (NULL," ");
-	arg2 = strtok (NULL," ");
-	printf("%s %s %s\n",command,arg1,arg2);
 
 	if (STRINGS_ARE_EQUAL(command,"/active_users"))
 	{
-		if (SendActiveUsers(sd, Users, MutexHandle)){
-			return 1;
+		errorCode = SendActiveUsers(sourceSocket, Users, MutexHandle,clientNameStr,&systemMessage);
+		if (errorCode == ISP_SUCCESS)
+		{
+			printf("SYSTEM::sent to %s: %s\n",clientNameStr,systemMessage);
+		}
+		return errorCode;
+	}
+	
+	else if (STRINGS_ARE_EQUAL(command,"/message"))
+	{
+		arg1 = strtok (NULL,"\0");
+		if (arg1 != NULL)
+		{
+			errorCode = SendPublicMessage(arg1,clientNameStr,MutexHandle,Users,*sourceSocket);
+			if (errorCode == ISP_SUCCESS)
+			{
+				printf("CONVERSATION:: %s: %s\n",clientNameStr,arg1);
+			}
+			return errorCode;
+		}
+		else
+		{
+			return ISP_NO_SUCCESS;
 		}
 	}
 
 	else if (STRINGS_ARE_EQUAL(command,"/private_message"))
 	{
-		if (SendPrivateMessage(arg1, arg2 , sd, Users)){
-			return 1;
+		arg1 = strtok (NULL," ");
+		arg2 = strtok (NULL,"\0");
+		if (arg1 != NULL && arg2 != NULL) 
+		{
+			errorCode = SendPrivateMessage(arg1,clientNameStr,arg2, MutexHandle, Users,sourceSocket);
+			if (errorCode == ISP_SUCCESS)
+			{
+				printf("CONVERSATION:: private message from %s to %s: %s\n",clientNameStr,arg1,arg2);
+			}
+			return errorCode;
+		}
+		else
+		{
+			return ISP_NO_SUCCESS;
 		}
 	}
 
@@ -331,11 +362,12 @@ int HandleClientCommand(char* str, SOCKET *sd,BOOL* Done)
 		// open p2p connection between 2 users
 	}
 
-	else if (STRINGS_ARE_EQUAL(command,"quit"))
+	else if (STRINGS_ARE_EQUAL(command,"/quit"))
 	{
 		*Done = TRUE;
+		return ISP_SUCCESS;
 	}
-	return 0;
+	return ISP_NO_SUCCESS;
 }
 
 //Service thread is the thread that opens for each successful client connection and "talks" to the client.
@@ -372,25 +404,33 @@ static DWORD ServiceThread( SOCKET *t_socket )
 	if ( sendRes == TRNS_FAILED ) 
 	{
 		printf( "Service socket error while writing, closing thread.\n" );
+		LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
 		closesocket( *t_socket );
 		return 1;
 	}
-
-	EnterSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
-
 	while ( !Done ) 
 	{		
 		char* sessionStr = NULL;
 		recvRes = ReceiveString( &sessionStr , *t_socket );
 		if (!ValidateReceivingString(recvRes))
 		{
+			LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
 			closesocket( *t_socket );
 			return 1;
 		}
-		printf("%s,Got string : %s\n",clientNameStr,sessionStr);
+		//printf("SYSTEM:: sent to %s:,Got string : %s\n",clientNameStr,sessionStr);
 		
-		if (HandleClientCommand( sessionStr, t_socket ,&Done)){
-			return 1;
+		if (HandleClientCommand( sessionStr, t_socket ,&Done,clientNameStr) != ISP_SUCCESS)
+		{
+			char* message = ConcatString("No such command: ",sessionStr,"");
+			sendRes = SendString(message, *t_socket );
+			if ( sendRes == TRNS_FAILED ) 
+			{
+				printf( "Service socket error while writing, closing thread.\n" );
+				LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
+				closesocket( *t_socket );
+				return 1;
+			}
 		}
 	
 		free( sessionStr );		

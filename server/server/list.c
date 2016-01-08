@@ -32,7 +32,7 @@ List* CreateList()
 	return new_list;
 }
 
-void AddElementAtEnd(List* list, char* name,SOCKET socket)
+Node* AddElementAtEnd(List* list, char* name,SOCKET socket)
 {
 	Node *new_node;
 	do{
@@ -54,6 +54,7 @@ void AddElementAtEnd(List* list, char* name,SOCKET socket)
 		list->lastNode = new_node;
 	}
 	list->size_of_list++;
+	return new_node;
 }
 
 void AddElemntAtStart(List* list, char* name,SOCKET socket)
