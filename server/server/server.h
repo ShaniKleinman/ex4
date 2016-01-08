@@ -10,6 +10,13 @@
 #define MAX_USER_NAME_LENGTH 16
 #endif
 
+#include <stdio.h>
+#include <string.h>
+#include <winsock2.h>
+#include <Windows.h>
+#include <ctype.h>
+#include <assert.h>
+#include <tchar.h>
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
@@ -33,6 +40,6 @@ typedef enum {
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 void MainServer(int portNumber,int maxClients);
-
+void CloseSession(SOCKET sourceSocket);
 
 #endif // SERVER_H

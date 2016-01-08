@@ -29,7 +29,7 @@ Last updated by Amnon Drory, Winter 2011.
 
 HANDLE* ThreadHandles;
 SOCKET* ThreadInputs;
-
+FILE *ServerLog;
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 int NUM_OF_WORKER_THREADS;
@@ -38,8 +38,9 @@ static int FindFirstUnusedThreadSlot();
 static void CleanupWorkerThreads();
 static DWORD ServiceThread( SOCKET *t_socket );
 
-LPCTSTR MutexName = _T( "ProgressionMutexTop" );
+LPCTSTR MutexName = _T( "MutexTop" );
 HANDLE MutexHandle;
+SOCKET MainSocket;
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void InitParams(int maxClients);
@@ -58,7 +59,6 @@ void MainServer(int portNumber,int maxClients)
 {
 	int Ind;
 	int Loop;
-	SOCKET MainSocket = INVALID_SOCKET;
 	unsigned long Address;
 	SOCKADDR_IN service;
 	int bindRes;
@@ -66,6 +66,8 @@ void MainServer(int portNumber,int maxClients)
 	WSADATA wsaData;
 	// Initialize Winsock.
     int StartupRes = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );	           
+	ServerLog = fopen("server_log.text","w+");
+	MainSocket = INVALID_SOCKET;
 
     if ( StartupRes != NO_ERROR )
 	{
@@ -187,7 +189,7 @@ void MainServer(int portNumber,int maxClients)
 				NULL
 			);
 		}
-    } // for ( Loop = 0; Loop < MAX_LOOPS; Loop++ )
+    } 
 
 
 }
@@ -310,7 +312,7 @@ DWORD HandleClientCommand(char* str, SOCKET *sourceSocket,BOOL* Done,char* clien
 		errorCode = SendActiveUsers(sourceSocket, Users, MutexHandle,clientNameStr,&systemMessage);
 		if (errorCode == ISP_SUCCESS)
 		{
-			printf("SYSTEM::sent to %s: %s\n",clientNameStr,systemMessage);
+			printf("REQUEST::from %s: %s\n",clientNameStr,systemMessage);
 		}
 		return errorCode;
 	}
@@ -371,7 +373,7 @@ DWORD HandleClientCommand(char* str, SOCKET *sourceSocket,BOOL* Done,char* clien
 }
 
 //Service thread is the thread that opens for each successful client connection and "talks" to the client.
-static DWORD ServiceThread( SOCKET *t_socket ) 
+DWORD ServiceThread( SOCKET *t_socket ) 
 {
 	char SendStr[SEND_STR_SIZE];
 	char *clientNameStr = NULL;
@@ -379,7 +381,6 @@ static DWORD ServiceThread( SOCKET *t_socket )
 	BOOL Done = FALSE;
 	TransferResult_t sendRes;
 	TransferResult_t recvRes;
-
 	recvRes = ReceiveString( &clientNameStr , *t_socket );
 	if (HandleAccessRequest(clientNameStr,&accessResult,*t_socket) != ISP_SUCCESS)
 	{
@@ -406,7 +407,7 @@ static DWORD ServiceThread( SOCKET *t_socket )
 		printf( "Service socket error while writing, closing thread.\n" );
 		LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
 		closesocket( *t_socket );
-		return 1;
+		return ISP_NO_SUCCESS;
 	}
 	while ( !Done ) 
 	{		
@@ -416,7 +417,7 @@ static DWORD ServiceThread( SOCKET *t_socket )
 		{
 			LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
 			closesocket( *t_socket );
-			return 1;
+			return ISP_NO_SUCCESS;
 		}
 		//printf("SYSTEM:: sent to %s:,Got string : %s\n",clientNameStr,sessionStr);
 		
@@ -429,17 +430,16 @@ static DWORD ServiceThread( SOCKET *t_socket )
 				printf( "Service socket error while writing, closing thread.\n" );
 				LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
 				closesocket( *t_socket );
-				return 1;
+				return ISP_NO_SUCCESS;
 			}
 		}
-	
 		free( sessionStr );		
 	}
 	
 	printf("%s,Conversation ended.\n",clientNameStr);
 	LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle);
 	closesocket( *t_socket );
-	return 0;
+	return ISP_SUCCESS;
 }
 
 void InitParams(int maxClients)
@@ -459,4 +459,12 @@ void InitParams(int maxClients)
 	Users = CreateList();
 
 
+}
+
+void CloseSession(SOCKET sourceSocket)
+{
+	closesocket(sourceSocket);
+	closesocket(MainSocket);
+	CloseHandle(MutexHandle);
+	exit(1);
 }

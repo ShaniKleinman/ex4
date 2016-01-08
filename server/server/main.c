@@ -18,8 +18,5 @@ int main(int argc,char** argv)
 		printf("Argument Prameters are not correct\n");
 		return 0;
 	}
-	printf("Shani is need to go buy Bamba %d %d\n",portNumber,maxClients);
 	MainServer(portNumber,maxClients);
-
-	while(1);
 }

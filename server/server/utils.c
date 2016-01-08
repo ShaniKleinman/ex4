@@ -32,6 +32,10 @@ BOOL RequestAccessFlow(List* users, char* name,SOCKET socket)
 	Node* currentNode;
 	BOOL statusRequest = FALSE;
 	char* message;
+	if (STRINGS_ARE_EQUAL(name,"server"))
+	{
+		return statusRequest;
+	}
 	if (node == NULL)
 	{
 		node = AddElementAtEnd(users,name,socket);
@@ -65,6 +69,7 @@ ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE m
 	Node* userNode;
 	Node* currentNode;
 	TransferResult_t sendRes;
+	int activeUserCounter = 0;
 	char* message;
 	__try 
 	{
@@ -81,6 +86,7 @@ ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE m
 				{
 					if(currentNode->activeStatus== ACTIVE)
 					{
+						activeUserCounter++;
 						message = ConcatString("*** ",clientName," has left the session ***");
 						sendRes = SendString(message,currentNode->socket);
 						if ( sendRes == TRNS_FAILED ) 
@@ -93,6 +99,10 @@ ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE m
 						}
 					}
 					currentNode = currentNode->next;
+				}
+				if (activeUserCounter == 0)
+				{
+					CloseSession(socket);
 				}
 			} 
 			break; 
@@ -170,8 +180,6 @@ ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNa
 		//printf("%d is releasing mutex %d\n",GetCurrentThreadId(),MutexHandleTop);
 		return ( ISP_SUCCESS );
 	}
-
-	return 0;
 }
 
 ErrorCode_t SendPrivateMessage(char* userDestName, char* userSourceName, char* message, HANDLE mutex, List* users,SOCKET *sourceSocket)
