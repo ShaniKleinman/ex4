@@ -10,8 +10,13 @@ Last updated by Amnon Drory, Winter 2011.
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <winsock2.h>
+#include <iphlpapi.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#pragma comment(lib, "IPHLPAPI.lib")
 
 #include "utils.h"
 #include "SocketExampleShared.h"
@@ -21,6 +26,8 @@ Last updated by Amnon Drory, Winter 2011.
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 SOCKET m_socket;
+FILE *UsernameErrorsFile;
+FILE *UsernameLogFile;
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
@@ -56,12 +63,14 @@ DWORD CheckSessionAccess(char* clientName)
 	}
 	if (STRINGS_ARE_EQUAL(acceptedStr,"No available socket at the moment. Try again later."))
 	{
+		fprintf(UsernameLogFile,"%s\n",acceptedStr);
 		printf("%s\n",acceptedStr);
 		return NO_ACCESS;
 	}
 	if (STRINGS_ARE_EQUAL(acceptedStr,"welcome to the session."))
 	{
-		printf("Hello <%s>, welcome to the session.\n",clientName);
+		printf("Hello %s, welcome to the session.\n",clientName);
+		fprintf(UsernameLogFile,"RECEIVED::Hello %s, welcome to the session.\n",clientName);
 		return ACCESS;
 	}
 	return NO_ACCESS;
@@ -89,6 +98,7 @@ static DWORD RecvDataThread(void)
 		}
 		else
 		{
+			fprintf(UsernameLogFile,"RECEIVED::%s\n",acceptedStr);
 			printf("%s\n",acceptedStr);
 		}
 		
@@ -111,37 +121,60 @@ static DWORD SendDataThread(void)
 		gets(SendStr); //Reading a string from the keyboard
 		
 		SendRes = SendString( SendStr, m_socket);
-	
+		fprintf(UsernameLogFile,"SENT::%s\n",SendStr);
 		if ( SendRes == TRNS_FAILED ) 
 		{
 			printf("Socket error while trying to write data to socket\n");
 			return 0x555;
 		}
-
-		if ( STRINGS_ARE_EQUAL(SendStr,"quit") ) 
-			return 0x555; //"quit" signals an exit from the client side
 	}
 }
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+int doesFileExist(const char *filename) 
+{
+    struct stat st;
+    int result = stat(filename, &st);
+    return result == 0;
+}
 
+void CreateLogsFiles(char* clientName)
+{
+	char* usernameErrorsFile_string = (char*) malloc(MAX_USER_NAME_LENGTH *sizeof (*usernameErrorsFile_string));
+	char* usernameLogFile_string = (char*) malloc(MAX_USER_NAME_LENGTH *sizeof (*usernameErrorsFile_string));
+	
+	if (usernameErrorsFile_string == NULL || usernameLogFile_string == NULL)
+	{
+		exit(1);
+	}
+
+	usernameErrorsFile_string =  ConcatString(clientName,"_errors" , ".txt");
+	usernameLogFile_string = ConcatString (clientName,"_log" , ".txt");
+	
+	//Openfiles for create new files
+	UsernameErrorsFile=fopen(usernameErrorsFile_string,"a");	
+	UsernameLogFile   =fopen(usernameLogFile_string,"a");
+	
+	if (UsernameErrorsFile == NULL || UsernameLogFile == NULL )
+	{
+		printf("ERROR: FILES Were not be able to create\n");
+		exit(1);
+	}
+	return;
+}
 void MainClient(char* serverIp,char* clientName,int serverPort)
 {
 	SOCKADDR_IN clientService;
 	HANDLE hThread[2];
-	char* accessResult;
-
+	
     // Initialize Winsock.
     WSADATA wsaData; //Create a WSADATA object called wsaData.
 	//The WSADATA structure contains information about the Windows Sockets implementation.
-	
+   
 	//Call WSAStartup and check for errors.
     int iResult = WSAStartup( MAKEWORD(2, 2), &wsaData );
     if ( iResult != NO_ERROR )
         printf("Error at WSAStartup()\n");
-
-	//Call the socket function and return its value to the m_socket variable. 
-	// For this application, use the Internet address family, streaming sockets, and the TCP/IP protocol.
 	
 	// Create a socket.
     m_socket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
@@ -152,32 +185,20 @@ void MainClient(char* serverIp,char* clientName,int serverPort)
         WSACleanup();
         return;
     }
-	/*
-	 The parameters passed to the socket function can be changed for different implementations. 
-	 Error detection is a key part of successful networking code. 
-	 If the socket call fails, it returns INVALID_SOCKET. 
-	 The if statement in the previous code is used to catch any errors that may have occurred while creating 
-	 the socket. WSAGetLastError returns an error number associated with the last error that occurred.
-	 */
 
+	CreateLogsFiles(clientName);
 
-	//For a client to communicate on a network, it must connect to a server.
-    // Connect to a server.
-
-    //Create a sockaddr_in object clientService and set  values.
     clientService.sin_family = AF_INET;
 	clientService.sin_addr.s_addr = inet_addr( serverIp ); //Setting the IP address to connect to
     clientService.sin_port = htons( serverPort ); //Setting the port to connect to.
 	
-	/*
-		AF_INET is the Internet address family. 
-	*/
-
-
-    // Call the connect function, passing the created socket and the sockaddr_in structure as parameters. 
-	// Check for general errors.
-	if ( connect( m_socket, (SOCKADDR*) &clientService, sizeof(clientService) ) == SOCKET_ERROR) {
-        printf( "Failed to connect.\n" );
+	if ( connect( m_socket, (SOCKADDR*) &clientService, sizeof(clientService) ) == SOCKET_ERROR) 
+	{
+		//printFailierToFile(usernameErrorsFile_string
+        fprintf(UsernameErrorsFile, "%s failed to connect to %s:%d - error number %d\n",
+			"127.0.0.1",serverIp,serverPort,WSAGetLastError() );
+		printf("%s failed to connect to %s:%d - error number %d\n",
+			"127.0.0.1",serverIp,serverPort,WSAGetLastError() );
         WSACleanup();
         return;
     }
@@ -223,7 +244,8 @@ void MainClient(char* serverIp,char* clientName,int serverPort)
 
 	CloseHandle(hThread[0]);
 	CloseHandle(hThread[1]);
-	
+	fclose(UsernameErrorsFile);
+	fclose(UsernameLogFile);
 
 	closesocket(m_socket);
 	WSACleanup();

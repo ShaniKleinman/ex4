@@ -1,0 +1,9 @@
+RECEIVED::No such command: /message
+RECEIVED::*** matan has joined the session ***
+RECEIVED::matan: message
+RECEIVED::*** matan has left the session ***
+SENT::/active_users
+RECEIVED::shani
+SENT::/private_message matan hello
+RECEIVED::No such user matan
+SENT::/quit

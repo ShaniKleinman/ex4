@@ -1,0 +1,36 @@
+SENT::message
+SENT::/message
+RECEIVED::No such command: /message
+SENT::/dskjk dskjkds kjdksj 
+RECEIVED::No such command: /dskjk
+SENT::/quit
+SENT::you are such gays
+SENT::quit
+SENT::quit
+RECEIVED::*** idan has joined the session ***
+SENT::quit
+SENT::quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** idan has joined the session ***
+RECEIVED::idan: quit
+RECEIVED::idan: quit
+RECEIVED::idan: quit
+RECEIVED::idan: hello
+RECEIVED::idan: ata gever!!!
+RECEIVED::*** idan has left the session ***
+RECEIVED::*** idan has joined the session ***
+RECEIVED::idan: hi
+RECEIVED::idan: bye
+RECEIVED::*** idan has left the session ***
+RECEIVED::*** idan has joined the session ***
+RECEIVED::idan: hi
+RECEIVED::*** idan has left the session ***
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** idan has joined the session ***
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** idan has joined the session ***
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** idan has joined the session ***
+RECEIVED::*** idan has left the session ***
+SENT::/quit

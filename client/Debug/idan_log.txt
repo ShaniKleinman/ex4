@@ -1,0 +1,92 @@
+RECEIVED::*** itzik has joined the session ***
+RECEIVED::itzik: hi idan
+SENT::/private_message itzik hi itzik
+SENT::thank tou
+SENT::i love you to
+SENT::i also like to touch my balls
+SENT::and sometimes i like to eat mallaoch
+RECEIVED::itzik: you
+RECEIVED::itzik: bye
+RECEIVED::itzik: quit
+RECEIVED::*** itzik has left the session ***
+SENT::/quit
+RECEIVED::itzik: hhhhhhh
+RECEIVED::itzik: you gay
+RECEIVED::itzik: hhhhhhh
+SENT::/private_message itzik jjjj jjjjjj jjjjjjj jjjjjjj
+SENT::jjjjjjjjjj jjjjjjjk kkkkkkk
+SENT::/active_users
+RECEIVED::itzik, idan
+SENT::quit
+SENT::a
+SENT::a
+SENT::a
+SENT::a
+SENT::a
+RECEIVED::itzik: b
+RECEIVED::itzik: b
+RECEIVED::itzik: b
+RECEIVED::itzik: b
+SENT::a/active_users
+SENT::/active_users
+RECEIVED::itzik, idan
+RECEIVED::itzik: aaa aaa aa
+SENT::/private_message itzik dsjhdjs dshjhjds hjdsh
+SENT::/private_message itzik you are gay
+RECEIVED::itzik: you to
+SENT::/private_message itzik i love you
+SENT::/private_message itzik want to be gay together???
+RECEIVED::itzik: Yessssssss
+RECEIVED::*** matan has joined the session ***
+RECEIVED::matan: you
+RECEIVED::matan: quit
+RECEIVED::*** matan has left the session ***
+RECEIVED::*** itzik has left the session ***
+SENT::/quit
+RECEIVED::matan: quit
+RECEIVED::*** matan has left the session ***
+SENT::quit
+SENT::quit
+SENT::quit
+SENT::quit
+SENT::quit
+SENT::quit
+SENT::quit
+SENT::quit
+SENT::/quit
+SENT::/quit
+SENT::hi
+SENT::bye
+SENT::/quit
+RECEIVED::Hello idan, welcome to the session.
+SENT::quit
+SENT::quit
+SENT::quit
+SENT::hello
+SENT::/active_users
+RECEIVED::matan, idan
+SENT::/private_message matan ata gever!!!
+SENT::/quit
+RECEIVED::Hello idan, welcome to the session.
+SENT::hi
+SENT::bye
+SENT::/quit
+RECEIVED::Hello idan, welcome to the session.
+SENT::hi bye
+SENT::/quit
+RECEIVED::Hello idan, welcome to the session.
+RECEIVED::*** matan has left the session ***
+SENT::/quit
+RECEIVED::Hello idan, welcome to the session.
+RECEIVED::sapir: hi
+SENT::hi dapir
+RECEIVED::sapir: hi
+SENT::hi love you to
+RECEIVED::sapir: want
+SENT::YESSSSSSSSS
+RECEIVED::*** sapir has left the session ***
+SENT::/quit
+RECEIVED::Hello idan, welcome to the session.
+SENT::/quit
+RECEIVED::Hello idan, welcome to the session.
+SENT::/quit

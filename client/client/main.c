@@ -34,8 +34,6 @@ int main(int argc,char** argv)
 		printf("ERROR - user name length is exceeds the limit\n");
 		return 1;
 	}
-	printf("<%s><%s><%d>\n",serverIp,clientName,serverPort);
 	MainClient(serverIp,clientName,serverPort);
-	while(1);
 	return 0;
 }

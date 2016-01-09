@@ -42,7 +42,7 @@ Node* AddElementAtEnd(List* list, char* name,SOCKET socket)
 	new_node->socket=socket;
 	new_node->name = name;
 	new_node->next = NULL;
-	
+
 	if (IsListEmpty(list))
 	{
 		list->firstNode = new_node;
@@ -68,7 +68,7 @@ void AddElemntAtStart(List* list, char* name,SOCKET socket)
 	node_new->socket=socket;
 	node_new->name = name;
 	node_new->next = NULL;
-	
+
 	if (IsListEmpty(list))
 	{
 		list->firstNode = node_new;
@@ -150,7 +150,7 @@ void DeleteList(List* list)
 		current_node = next_node;
 		next_node = next_node->next;
 	}
-	
+
 	free(list);
 	printf("List has been deleted");
 }
@@ -159,7 +159,7 @@ void PrintList(List* list)
 {
 	Node* current_node;
 	current_node = list->firstNode;
-	
+
 	if (IsListEmpty(list))
 	{
 		printf("[]\n");
@@ -173,7 +173,7 @@ void PrintList(List* list)
 		current_node = current_node->next;
 	}
 	printf("%s]\n", current_node->name);
-	
+
 }
 
 // Local functions
@@ -230,7 +230,7 @@ Node* ReturnElementByIndex(List* list, int element_index, Node* previous_node)
 	int index;
 	previous_node = NULL;
 	current_node = list->firstNode;
-	
+
 	if (element_index < 0)
 	{
 		printf("ERROR! Input index is illegal!");
@@ -239,7 +239,7 @@ Node* ReturnElementByIndex(List* list, int element_index, Node* previous_node)
 
 	if (element_index == 0)
 		return current_node;
-		
+
 	for (index = 1; index <= element_index; index++)
 	{
 		previous_node = current_node;

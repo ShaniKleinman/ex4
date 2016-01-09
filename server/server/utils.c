@@ -25,7 +25,7 @@ char* ConcatString(	char* source_a, char* source_b,char* source_c)
 	return string;
 }
 
-BOOL RequestAccessFlow(List* users, char* name,SOCKET socket)
+BOOL RequestAccessFlow(List* users, char* name,SOCKET socket,FILE *serverLog)
 {
 	int i;
 	Node* node = ReturnElementByName(users,name);
@@ -59,11 +59,12 @@ BOOL RequestAccessFlow(List* users, char* name,SOCKET socket)
 			}
 			currentNode = currentNode->next;
 		}
+		fprintf(serverLog,"SYSTEM:: *** %s has joined the session ***\n",name);
 	}
 	return statusRequest;
 }
 
-ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex)
+ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE mutex,FILE *serverLog)
 {
 	DWORD WaitRes;
 	Node* userNode;
@@ -71,6 +72,7 @@ ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE m
 	TransferResult_t sendRes;
 	int activeUserCounter = 0;
 	char* message;
+	fprintf(serverLog,"SYSTEM:: *** %s has left the session ***\n",clientName);
 	__try 
 	{
 		WaitRes = WaitForSingleObject( mutex, INFINITE );
@@ -120,7 +122,7 @@ ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE m
 	}
 }
 
-ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNameStr,char** systemMessage)
+ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNameStr,char** systemMessage,FILE *serverLog)
 {
 	DWORD WaitRes;
 	Node* currentNode = users->firstNode;
@@ -149,7 +151,7 @@ ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNa
 					}
 					else if (currentNode->activeStatus== ACTIVE)
 					{
-						activeUsersNameList = ConcatString(activeUsersNameList,", ",currentNode->name);
+						activeUsersNameList = ConcatString(activeUsersNameList," ",currentNode->name);
 					}
 					currentNode = currentNode->next;
 				}
@@ -164,6 +166,7 @@ ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNa
 					userNode->socket=NULL;
 					return ISP_NO_SUCCESS;
 				}
+				fprintf(serverLog,"SYSTEM:: %s\n",activeUsersNameList);
 			}
 			break; 
 		case WAIT_ABANDONED: 
@@ -176,7 +179,7 @@ ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNa
 		{
 			return ( ISP_MUTEX_RELEASE_FAILED );
 		} 
-		
+
 		//printf("%d is releasing mutex %d\n",GetCurrentThreadId(),MutexHandleTop);
 		return ( ISP_SUCCESS );
 	}
@@ -240,7 +243,7 @@ ErrorCode_t SendPrivateMessage(char* userDestName, char* userSourceName, char* m
 		return ( ISP_SUCCESS );
 	}
 
-	return 0;
+	return ISP_SUCCESS;
 }
 
 ErrorCode_t SendPublicMessage(char* arg1,char* clientNameStr,HANDLE mutexHandle,List* users,SOCKET sourceSocket)
@@ -291,7 +294,38 @@ ErrorCode_t SendPublicMessage(char* arg1,char* clientNameStr,HANDLE mutexHandle,
 		//printf("%d is releasing mutex %d\n",GetCurrentThreadId(),MutexHandleTop);
 		return ( ISP_SUCCESS );
 	}
-
-	return 0;
 }
 
+ErrorCode_t HandleAccessRequest(char* AcceptedStr,AccessResult* accessResult,SOCKET socket,HANDLE mutexHandle,List* users,FILE *serverLog)
+{
+	DWORD WaitRes;
+	__try 
+	{
+		WaitRes = WaitForSingleObject( mutexHandle, INFINITE );
+		switch (WaitRes) 
+		{
+		case WAIT_OBJECT_0: 
+			{
+				if (RequestAccessFlow(users,AcceptedStr,socket,serverLog))
+				{
+					*accessResult = ACCESS;
+				}
+				else
+				{
+					*accessResult = NO_ACCESS;
+				}
+			} 
+			break; 
+		case WAIT_ABANDONED: 
+			return ISP_MUTEX_ABANDONED; 
+		}
+	}
+	__finally 
+	{ 
+		if ( !ReleaseMutex(mutexHandle)) {
+			return ( ISP_MUTEX_RELEASE_FAILED );
+		} 
+		//printf("%d is releasing mutex %d\n",GetCurrentThreadId(),MutexHandleTop);
+		return ( ISP_SUCCESS );
+	}
+}
