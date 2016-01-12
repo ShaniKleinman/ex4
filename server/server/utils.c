@@ -105,6 +105,7 @@ ErrorCode_t LeaveSessionFlow(char* clientName,SOCKET socket,List* users,HANDLE m
 				if (activeUserCounter == 0)
 				{
 					CloseSession(socket);
+					return ISP_EXIT_PROGRAM;
 				}
 			} 
 			break; 
@@ -185,13 +186,14 @@ ErrorCode_t SendActiveUsers(SOCKET *sd, List* users, HANDLE mutex,char* clientNa
 	}
 }
 
-ErrorCode_t SendPrivateMessage(char* userDestName, char* userSourceName, char* message, HANDLE mutex, List* users,SOCKET *sourceSocket)
+ErrorCode_t SendPrivateMessage(char* userDestName, char* userSourceName, char* message, HANDLE mutex, List* users,SOCKET *sourceSocket,FILE *serverLog)
 {
 	DWORD WaitRes;
 	Node* userDestNode;
 	Node* userSourceNode;
 	TransferResult_t sendRes;
 	char* messageConcat;
+	char* messageConcatPrivate;
 	__try 
 	{
 		WaitRes = WaitForSingleObject( mutex, INFINITE );
@@ -202,7 +204,8 @@ ErrorCode_t SendPrivateMessage(char* userDestName, char* userSourceName, char* m
 				userDestNode = ReturnElementByName(users,userDestName);
 				if (userDestNode != NULL && userDestNode->activeStatus == ACTIVE)
 				{
-					messageConcat = ConcatString(userSourceName,": ",message);
+					messageConcatPrivate = ConcatString("/private_message ",userSourceName,"");
+					messageConcat = ConcatString(messageConcatPrivate,": ",message);
 					sendRes = SendString(messageConcat,userDestNode->socket);
 					if ( sendRes == TRNS_FAILED ) 
 					{
@@ -215,6 +218,7 @@ ErrorCode_t SendPrivateMessage(char* userDestName, char* userSourceName, char* m
 				}
 				else
 				{
+					fprintf(serverLog,"SYSTEM:: no such user %s\n",userDestName);
 					messageConcat = ConcatString("No such user ","",userDestName);
 					sendRes = SendString(messageConcat,*sourceSocket);
 					if ( sendRes == TRNS_FAILED ) 

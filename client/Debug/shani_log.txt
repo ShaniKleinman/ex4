@@ -1,9 +1,97 @@
-RECEIVED::No such command: /message
-RECEIVED::*** matan has joined the session ***
-RECEIVED::matan: message
-RECEIVED::*** matan has left the session ***
+RECEIVED::Hello shani, welcome to the session.
 SENT::/active_users
 RECEIVED::shani
+RECEIVED::Hello shani, welcome to the session.
+SENT::/active_users
+RECEIVED::shani
+RECEIVED::*** matan has joined the session ***
+SENT::/active_users
+RECEIVED::shani matan
+SENT::bye
+SENT::exit
+SENT::quit
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
+RECEIVED::Hello shani, welcome to the session.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+RECEIVED::Hello shani, welcome to the session.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+RECEIVED::Hello shani, welcome to the session.
+RECEIVED::*** matan has left the session ***
+RECEIVED::Hello shani, welcome to the session.
+RECEIVED::*** matan has left the session ***
+RECEIVED::Hello shani, welcome to the session.
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
 SENT::/private_message matan hello
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
+SENT::/private_message hello
+RECEIVED::No such command: /private_message
+SENT::/private_message matan hello
+SENT::/private_message matan hello
+RECEIVED::matan: hiiiiiiiiiiiii
+RECEIVED::*** matan has left the session ***
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
+SENT::/private_message matan hello
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::/private_message matan: hiiiiiiiiiiiii
+RECEIVED::*** matan has left the session ***
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
+SENT::/sdsadsa
+RECEIVED::No such command: /sdsadsa
+SENT::/dsadasd
+RECEIVED::No such command: /dsadasd
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
+SENT::/dsadasda
+RECEIVED::No such command: /dsadasda
+SENT::/private_message matan jkhdsds
 RECEIVED::No such user matan
+SENT::/private_message matan 
+RECEIVED::No such command: /private_message
+SENT::/quit
+RECEIVED::Hello shani, welcome to the session.
+SENT::quit
 SENT::/quit

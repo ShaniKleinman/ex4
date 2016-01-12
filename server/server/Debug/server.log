@@ -1,41 +1,13 @@
-﻿Build started 1/9/2016 7:32:57 PM.
+﻿Build started 1/12/2016 10:02:00 PM.
      1>Project "C:\Users\skleinma\Documents\GitHub\ex4\server\server\server.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\server.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt SocketSendRecvTools.c list.c server.c utils.c
-         utils.c
-     1>utils.c(22): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(105) : see declaration of 'strcpy'
-     1>utils.c(23): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(110) : see declaration of 'strcat'
-     1>utils.c(24): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(110) : see declaration of 'strcat'
-     1>utils.c(30): warning C4101: 'i' : unreferenced local variable
-     1>utils.c(85): warning C4047: '=' : 'SOCKET' differs in levels of indirection from 'void *'
-     1>utils.c(99): warning C4047: '=' : 'SOCKET' differs in levels of indirection from 'void *'
-     1>utils.c(123): warning C4532: 'return' : jump out of __finally block has undefined behavior during termination handling
-     1>utils.c(126): warning C4029: declared formal parameter list different from definition
-     1>utils.c(149): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(105) : see declaration of 'strcpy'
-     1>utils.c(166): warning C4047: '=' : 'SOCKET' differs in levels of indirection from 'void *'
-     1>utils.c(186): warning C4532: 'return' : jump out of __finally block has undefined behavior during termination handling
-     1>utils.c(212): warning C4047: '=' : 'SOCKET' differs in levels of indirection from 'void *'
-     1>utils.c(226): warning C4047: '=' : 'SOCKET' differs in levels of indirection from 'void *'
-     1>utils.c(247): warning C4532: 'return' : jump out of __finally block has undefined behavior during termination handling
-     1>utils.c(276): warning C4047: '=' : 'SOCKET' differs in levels of indirection from 'void *'
-     1>utils.c(297): warning C4532: 'return' : jump out of __finally block has undefined behavior during termination handling
-     1>utils.c(331): warning C4532: 'return' : jump out of __finally block has undefined behavior during termination handling
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt server.c
          server.c
-     1>server.c(276): warning C4101: 'pch' : unreferenced local variable
-     1>server.c(341): warning C4101: 'SendStr' : unreferenced local variable
-         list.c
-     1>list.c(46): warning C4013: 'IsListEmpty' undefined; assuming extern returning int
-     1>list.c(116): warning C4550: expression evaluates to a function which is missing an argument list
-     1>list.c(237): warning C4550: expression evaluates to a function which is missing an argument list
-     1>list.c(255): warning C4550: expression evaluates to a function which is missing an argument list
-         SocketSendRecvTools.c
-         Generating Code...
+     1>server.c(51): warning C4101: 'waitRes' : unreferenced local variable
+     1>server.c(223): warning C4101: 'pch' : unreferenced local variable
+     1>server.c(288): warning C4101: 'SendStr' : unreferenced local variable
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\skleinma\Documents\GitHub\ex4\server\Debug\server.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\server.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\skleinma\Documents\GitHub\ex4\server\Debug\server.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\skleinma\Documents\GitHub\ex4\server\Debug\server.lib" /MACHINE:X86 Debug\list.obj
          Debug\main.obj
@@ -53,4 +25,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.09
+Time Elapsed 00:00:01.10

@@ -1,36 +1,94 @@
-SENT::message
-SENT::/message
-RECEIVED::No such command: /message
-SENT::/dskjk dskjkds kjdksj 
-RECEIVED::No such command: /dskjk
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::shani: bye
+RECEIVED::shani: exit
+RECEIVED::shani: quit
+RECEIVED::*** shani has left the session ***
+SENT::/active_users
+RECEIVED::matan
+SENT::/private_message shani hello
+RECEIVED::No such user shani
+SENT::/fdfdfdf fdfdf
+RECEIVED::No such command: /fdfdfdf
+SENT::/fdfdfd
+RECEIVED::No such command: /fdfdfd
+SENT::dsdsds
+SENT::/private_message
+RECEIVED::No such command: /private_message
+SENT::/private_message dsds
+RECEIVED::No such command: /private_message
+SENT::/private_message dsds dsdsd
+RECEIVED::No such user dsds
 SENT::/quit
-SENT::you are such gays
-SENT::quit
-SENT::quit
-RECEIVED::*** idan has joined the session ***
-SENT::quit
-SENT::quit
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
 RECEIVED::Hello matan, welcome to the session.
-RECEIVED::*** idan has joined the session ***
-RECEIVED::idan: quit
-RECEIVED::idan: quit
-RECEIVED::idan: quit
-RECEIVED::idan: hello
-RECEIVED::idan: ata gever!!!
-RECEIVED::*** idan has left the session ***
-RECEIVED::*** idan has joined the session ***
-RECEIVED::idan: hi
-RECEIVED::idan: bye
-RECEIVED::*** idan has left the session ***
-RECEIVED::*** idan has joined the session ***
-RECEIVED::idan: hi
-RECEIVED::*** idan has left the session ***
 RECEIVED::Hello matan, welcome to the session.
-RECEIVED::*** idan has joined the session ***
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::Hello matan, welcome to the session.
+SENT::/active_users
+RECEIVED::matan
 SENT::/quit
 RECEIVED::Hello matan, welcome to the session.
-RECEIVED::*** idan has joined the session ***
-RECEIVED::Hello matan, welcome to the session.
-RECEIVED::*** idan has joined the session ***
-RECEIVED::*** idan has left the session ***
 SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** shani has joined the session ***
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** shani has joined the session ***
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** shani has joined the session ***
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** shani has joined the session ***
+RECEIVED::*** shani has left the session ***
+RECEIVED::*** hello has joined the session ***
+RECEIVED::hello: hello
+RECEIVED::*** hello has left the session ***
+RECEIVED::*** shani has joined the session ***
+RECEIVED::*** shani has left the session ***
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** shani has joined the session ***
+RECEIVED::shani: hello
+RECEIVED::*** shani has left the session ***
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** shani has joined the session ***
+RECEIVED::shani: hello
+RECEIVED::shani: hello
+SENT::/private_message
+RECEIVED::No such command: /private_message
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/quit
+RECEIVED::Hello matan, welcome to the session.
+RECEIVED::*** shani has joined the session ***
+RECEIVED::/private_message shani: hello
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message shani hiiiiiiiiiiiii
+SENT::/private_message
+SENT::/private_message
+SENT::/private_message
+SENT::/private_message
+SENT::/quit
+RECEIVED::No such command: /private_message
+RECEIVED::No such command: /private_message
+RECEIVED::No such command: /private_message
+RECEIVED::No such command: /private_message

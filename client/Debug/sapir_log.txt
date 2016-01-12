@@ -1,9 +1,0 @@
-RECEIVED::Hello sapir, welcome to the session.
-RECEIVED::*** idan has joined the session ***
-SENT::hi idan
-RECEIVED::idan: hi
-SENT::hi love you!!
-RECEIVED::idan: hi
-SENT::want to bring itzik???
-RECEIVED::idan: YESSSSSSSSS
-SENT::/quit

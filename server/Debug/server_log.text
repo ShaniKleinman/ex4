@@ -1,0 +1,5 @@
+SYSTEM:: *** shani has joined the session ***
+SYSTEM:: sent to shani: Hello shani, welcome to the session
+CONVERSATION:: shani: quit
+REQUEST::from shani: /quit
+SYSTEM:: *** shani has left the session ***

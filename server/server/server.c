@@ -1,14 +1,4 @@
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-/* 
-This file was written for instruction purposes for the 
-course "Introduction to Systems Programming" at Tel-Aviv
-University, School of Electrical Engineering.
-Last updated by Amnon Drory, Winter 2011.
-*/
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
 #define _CRT_SECURE_NO_WARNINGS
-
 #include <stdio.h>
 #include <string.h>
 #include <winsock2.h>
@@ -23,14 +13,10 @@ Last updated by Amnon Drory, Winter 2011.
 #include "SocketSendRecvTools.h"
 #include "SocketExampleShared.h"
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 #define SEND_STR_SIZE 35
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
 HANDLE* ThreadHandles;
 SOCKET* ThreadInputs;
 FILE *ServerLog;
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 int NUM_OF_WORKER_THREADS;
 int MAX_LOOPS;
@@ -42,10 +28,8 @@ LPCTSTR MutexName = _T( "MutexTop" );
 HANDLE MutexHandle;
 SOCKET MainSocket;
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 void InitParams(int maxClients);
 List* Users;
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 HANDLE CreateMutexSimple( LPCTSTR MutexName )
 {
@@ -64,6 +48,7 @@ void MainServer(int portNumber,int maxClients)
 	int bindRes;
 	int ListenRes;
 	WSADATA wsaData;
+	DWORD waitRes;
 	// Initialize Winsock.
 	int StartupRes = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );	           
 	ServerLog = fopen("server_log.text","w+");
@@ -77,14 +62,9 @@ void MainServer(int portNumber,int maxClients)
 	if ( StartupRes != NO_ERROR )
 	{
 		printf( "error %ld at WSAStartup( ), ending program.\n", WSAGetLastError() );
-		// Tell the user that we could not find a usable WinSock DLL.                                  
 		return;
 	}
-
-	/* The WinSock DLL is acceptable. Proceed. */
 	InitParams(maxClients);
-
-	// Create a socket.    
 	MainSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 
 	if ( MainSocket == INVALID_SOCKET ) 
@@ -92,18 +72,6 @@ void MainServer(int portNumber,int maxClients)
 		printf( "Error at socket( ): %ld\n", WSAGetLastError( ) );
 		exit(1);
 	}
-
-	// Bind the socket.
-	/*
-	For a server to accept client connections, it must be bound to a network address within the system. 
-	The following code demonstrates how to bind a socket that has already been created to an IP address 
-	and port.
-	Client applications use the IP address and port to connect to the host network.
-	The sockaddr structure holds information regarding the address family, IP address, and port number. 
-	sockaddr_in is a subset of sockaddr and is used for IP version 4 applications.
-	*/
-	// Create a sockaddr_in object and set its values.
-	// Declare variables
 
 	Address = inet_addr( SERVER_ADDRESS_STR );
 	if ( Address == INADDR_NONE )
@@ -116,17 +84,7 @@ void MainServer(int portNumber,int maxClients)
 	service.sin_family = AF_INET;
 	service.sin_addr.s_addr = INADDR_ANY;
 	service.sin_port = htons( portNumber ); //The htons function converts a u_short from host to TCP/IP network byte order 
-	//( which is big-endian ).
-	/*
-	The three lines following the declaration of sockaddr_in service are used to set up 
-	the sockaddr structure: 
-	AF_INET is the Internet address family. 
-	"127.0.0.1" is the local IP address to which the socket will be bound. 
-	2345 is the port number to which the socket will be bound.
-	*/
-
-	// Call the bind function, passing the created socket and the sockaddr_in structure as parameters. 
-	// Check for general errors.
+	
 	bindRes = bind( MainSocket, ( SOCKADDR* ) &service, sizeof( service ) );
 	if ( bindRes == SOCKET_ERROR ) 
 	{
@@ -134,7 +92,6 @@ void MainServer(int portNumber,int maxClients)
 		exit(1);
 	}
 
-	// Listen on the Socket.
 	ListenRes = listen( MainSocket, SOMAXCONN );
 	if ( ListenRes == SOCKET_ERROR ) 
 	{
@@ -148,7 +105,6 @@ void MainServer(int portNumber,int maxClients)
 		printf("CreateMutex error: %d\n", GetLastError());
 	}
 
-	// Initialize all thread handles to NULL, to mark that they have not been initialized
 	for ( Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++ )
 		ThreadHandles[Ind] = NULL;
 
@@ -156,15 +112,14 @@ void MainServer(int portNumber,int maxClients)
 
 	for ( Loop = 0; Loop < MAX_LOOPS; Loop++ )
 	{
-		SOCKET AcceptSocket = accept( MainSocket, NULL, NULL );
+		SOCKET AcceptSocket;
+		AcceptSocket = accept( MainSocket, NULL, NULL );
 		if ( AcceptSocket == INVALID_SOCKET )
 		{
 			printf( "Accepting connection with client failed, error %ld\n", WSAGetLastError() ) ; 
 			CleanupWorkerThreads();
 			exit(1);
 		}
-
-		printf( "Client Connected.\n" );
 
 		Ind = FindFirstUnusedThreadSlot();
 
@@ -174,17 +129,15 @@ void MainServer(int portNumber,int maxClients)
 			if (SendString( "No available socket at the moment. Try again later.", AcceptSocket ) == TRNS_FAILED ) 
 			{
 				printf( "Service socket error while writing, closing thread.\n" );
-				closesocket( AcceptSocket );
-				exit(1);
 			}
 			closesocket( AcceptSocket ); //Closing the socket, dropping the connection.
+			Loop = Loop -1;
 		} 
 		else 	
 		{
+			printf( "Client Connected.\n" );
+			Loop = Loop -1;
 			ThreadInputs[Ind] = AcceptSocket; // shallow copy: don't close 
-			// AcceptSocket, instead close 
-			// ThreadInputs[Ind] when the
-			// time comes.
 			ThreadHandles[Ind] = CreateThread(
 				NULL,
 				0,
@@ -194,12 +147,9 @@ void MainServer(int portNumber,int maxClients)
 				NULL
 				);
 		}
-	} 
-
+	}
 
 }
-
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 static int FindFirstUnusedThreadSlot()
 { 
@@ -226,8 +176,6 @@ static int FindFirstUnusedThreadSlot()
 	return Ind;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
 static void CleanupWorkerThreads()
 {
 	int Ind; 
@@ -236,7 +184,6 @@ static void CleanupWorkerThreads()
 	{
 		if ( ThreadHandles[Ind] != NULL )
 		{
-			// poll to check if thread finished running:
 			DWORD Res = WaitForSingleObject( ThreadHandles[Ind], INFINITE ); 
 
 			if ( Res == WAIT_OBJECT_0 ) 
@@ -255,7 +202,6 @@ static void CleanupWorkerThreads()
 	}
 }
 
-
 int ValidateReceivingString(TransferResult_t recvRes)
 {
 	if ( recvRes == TRNS_FAILED )
@@ -270,6 +216,7 @@ int ValidateReceivingString(TransferResult_t recvRes)
 	}
 	return 1;
 }
+
 DWORD HandleClientCommand(char* str, SOCKET *sourceSocket,BOOL* Done,char* clientNameStr)
 {
 
@@ -295,7 +242,7 @@ DWORD HandleClientCommand(char* str, SOCKET *sourceSocket,BOOL* Done,char* clien
 	}
 	else if (STRINGS_ARE_EQUAL(command,"/active_users"))
 	{
-		errorCode = SendActiveUsers(sourceSocket, Users, MutexHandle,clientNameStr,&systemMessage);
+		errorCode = SendActiveUsers(sourceSocket, Users, MutexHandle,clientNameStr,&systemMessage,ServerLog);
 		if (errorCode == ISP_SUCCESS)
 		{
 			fprintf(ServerLog,"REQUEST::from %s: %s\n",clientNameStr,command);
@@ -319,7 +266,7 @@ DWORD HandleClientCommand(char* str, SOCKET *sourceSocket,BOOL* Done,char* clien
 		arg2 = strtok (NULL,"\0");
 		if (arg1 != NULL && arg2 != NULL) 
 		{
-			errorCode = SendPrivateMessage(arg1,clientNameStr,arg2, MutexHandle, Users,sourceSocket);
+			errorCode = SendPrivateMessage(arg1,clientNameStr,arg2, MutexHandle, Users,sourceSocket,ServerLog);
 			if (errorCode == ISP_SUCCESS)
 			{
 				fprintf(ServerLog,"CONVERSATION:: private message from %s to %s: %s\n",clientNameStr,arg1,arg2);
@@ -355,22 +302,21 @@ DWORD ServiceThread( SOCKET *t_socket )
 		fprintf(ServerLog,"SYSTEM:: %s already taken!\n",clientNameStr);
 		if (SendString("already taken!", *t_socket) == TRNS_FAILED)
 		{
-			//printf( "Service socket error while writing, closing thread.\n" );
 			closesocket( *t_socket );
 			return 1;
 		}
 		closesocket( *t_socket );
 		return 0;
 	}
-
 	//Session connected
-	//printf("%s welcome to the session.\n",clientNameStr);
 	sendRes = SendString("welcome to the session.", *t_socket );
 	fprintf(ServerLog,"SYSTEM:: sent to %s: Hello %s, welcome to the session\n",clientNameStr,clientNameStr); 
 	if ( sendRes == TRNS_FAILED ) 
 	{
-		//printf( "Service socket error while writing, closing thread.\n" );
-		LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog);
+		if (LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog) == ISP_EXIT_PROGRAM)
+		{
+			return ISP_EXIT_PROGRAM;
+		}
 		closesocket( *t_socket );
 		return ISP_NO_SUCCESS;
 	}
@@ -380,20 +326,25 @@ DWORD ServiceThread( SOCKET *t_socket )
 		recvRes = ReceiveString( &sessionStr , *t_socket );
 		if (!ValidateReceivingString(recvRes))
 		{
-			LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog);
+			if (LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog) == ISP_EXIT_PROGRAM)
+			{
+				return ISP_EXIT_PROGRAM;
+			}
 			closesocket( *t_socket );
 			return ISP_NO_SUCCESS;
 		}
-		//printf("SYSTEM:: sent to %s:,Got string : %s\n",clientNameStr,sessionStr);
-
 		if (HandleClientCommand( sessionStr, t_socket ,&Done,clientNameStr) != ISP_SUCCESS)
 		{
 			char* message = ConcatString("No such command: ",sessionStr,"");
+			fprintf(ServerLog,"SYSTEM:: no such command: %s\n",sessionStr);
 			sendRes = SendString(message, *t_socket );
 			if ( sendRes == TRNS_FAILED ) 
 			{
 				printf( "Service socket error while writing, closing thread.\n" );
-				LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog);
+				if (LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog) == ISP_EXIT_PROGRAM)
+				{
+					return ISP_EXIT_PROGRAM;
+				}
 				closesocket( *t_socket );
 				return ISP_NO_SUCCESS;
 			}
@@ -401,8 +352,11 @@ DWORD ServiceThread( SOCKET *t_socket )
 		free( sessionStr );		
 	}
 
-	//printf("%s,Conversation ended.\n",clientNameStr);
-	LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog);
+	if (LeaveSessionFlow(clientNameStr,*t_socket,Users,MutexHandle,ServerLog) == ISP_EXIT_PROGRAM)
+	{
+		return ISP_EXIT_PROGRAM;
+	}
+
 	closesocket( *t_socket );
 	return ISP_SUCCESS;
 }
@@ -420,10 +374,7 @@ void InitParams(int maxClients)
 	if (ThreadInputs == NULL){
 		exit(1);
 	}
-
 	Users = CreateList();
-
-
 }
 
 void CloseSession(SOCKET sourceSocket)
@@ -432,5 +383,4 @@ void CloseSession(SOCKET sourceSocket)
 	closesocket(MainSocket);
 	CloseHandle(MutexHandle);
 	fclose(ServerLog);
-	exit(1);
 }

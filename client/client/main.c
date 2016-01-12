@@ -21,14 +21,14 @@ int main(int argc,char** argv)
 		printf("ERROR - Malloc failed \n");
 		return 1;
 	}
-	strcpy(serverIp,argv[1]);//,strlen(argv[1]));
+	strcpy(serverIp,argv[1]);
 	clientName = (char*) malloc(strlen(argv[3])*sizeof(char));
 	if (clientName == NULL)
 	{
 		printf("ERROR - Malloc failed \n");
 		return 1;
 	}
-	strcpy(clientName,argv[3]);//,strlen(argv[3]));
+	strcpy(clientName,argv[3]);
 	if (strlen(clientName) > MAX_USER_NAME_LENGTH)
 	{
 		printf("ERROR - user name length is exceeds the limit\n");

@@ -1,12 +1,3 @@
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-/* 
- This file was written for instruction purposes for the 
- course "Introduction to Systems Programming" at Tel-Aviv
- University, School of Electrical Engineering.
-Last updated by Amnon Drory, Winter 2011.
- */
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
@@ -23,13 +14,9 @@ Last updated by Amnon Drory, Winter 2011.
 #include "SocketSendRecvTools.h"
 #include "client.h"
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
 SOCKET m_socket;
 FILE *UsernameErrorsFile;
 FILE *UsernameLogFile;
-
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 DWORD CheckSessionAccess(char* clientName)
 {
@@ -108,8 +95,6 @@ static DWORD RecvDataThread(void)
 	return 0;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
 //Sending data to the server
 static DWORD SendDataThread(void)
 {
@@ -128,14 +113,6 @@ static DWORD SendDataThread(void)
 			return 0x555;
 		}
 	}
-}
-
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-int doesFileExist(const char *filename) 
-{
-    struct stat st;
-    int result = stat(filename, &st);
-    return result == 0;
 }
 
 void CreateLogsFiles(char* clientName)
@@ -166,12 +143,10 @@ void MainClient(char* serverIp,char* clientName,int serverPort)
 {
 	SOCKADDR_IN clientService;
 	HANDLE hThread[2];
-	
+	struct sockaddr_in foo;
+	int len = sizeof(struct sockaddr);
     // Initialize Winsock.
     WSADATA wsaData; //Create a WSADATA object called wsaData.
-	//The WSADATA structure contains information about the Windows Sockets implementation.
-   
-	//Call WSAStartup and check for errors.
     int iResult = WSAStartup( MAKEWORD(2, 2), &wsaData );
     if ( iResult != NO_ERROR )
         printf("Error at WSAStartup()\n");
@@ -191,14 +166,13 @@ void MainClient(char* serverIp,char* clientName,int serverPort)
     clientService.sin_family = AF_INET;
 	clientService.sin_addr.s_addr = inet_addr( serverIp ); //Setting the IP address to connect to
     clientService.sin_port = htons( serverPort ); //Setting the port to connect to.
-	
 	if ( connect( m_socket, (SOCKADDR*) &clientService, sizeof(clientService) ) == SOCKET_ERROR) 
 	{
-		//printFailierToFile(usernameErrorsFile_string
+		getsockname(m_socket, (struct sockaddr *) &foo, &len);
         fprintf(UsernameErrorsFile, "%s failed to connect to %s:%d - error number %d\n",
-			"127.0.0.1",serverIp,serverPort,WSAGetLastError() );
-		printf("%s failed to connect to %s:%d - error number %d\n",
-			"127.0.0.1",serverIp,serverPort,WSAGetLastError() );
+			 inet_ntoa(foo.sin_addr),serverIp,serverPort,WSAGetLastError() );
+		fprintf(UsernameErrorsFile, "%s failed to connect to %s:%d - error number %d\n",
+			 inet_ntoa(foo.sin_addr),serverIp,serverPort,WSAGetLastError() );
         WSACleanup();
         return;
     }
@@ -210,15 +184,6 @@ void MainClient(char* serverIp,char* clientName,int serverPort)
 		WSACleanup();
 		exit(1);
 	}
-
-    // Send and receive data.
-	/*
-		In this code, two integers are used to keep track of the number of bytes that are sent and received. 
-		The send and recv functions both return an integer value of the number of bytes sent or received, 
-		respectively, or an error. Each function also takes the same parameters: 
-		the active socket, a char buffer, the number of bytes to send or receive, and any flags to use.
-
-	*/	
 
 	hThread[0]=CreateThread(
 		NULL,

@@ -1,0 +1,17 @@
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+No available socket at the moment. Try again later.
+RECEIVED::Hello hello, welcome to the session.
+SENT::/private_message matan hello
+SENT::/private_message shani hello
+RECEIVED::No such user shani
+SENT::/quit
